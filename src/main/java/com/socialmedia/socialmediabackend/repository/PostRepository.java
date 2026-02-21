@@ -1,0 +1,17 @@
+package com.socialmedia.socialmediabackend.repository;
+
+import com.socialmedia.socialmediabackend.Post;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+public interface PostRepository extends JpaRepository<Post, Long> {
+
+    @Query("SELECT p FROM Post p WHERE (:userId IS NULL OR p.user.id = :userId)")
+    Page<Post> findByOptionalUserId(@Param("userId") Long userId, Pageable pageable);
+
+    @Query("SELECT p FROM Post p LEFT JOIN p.likes l GROUP BY p ORDER BY COUNT(l) DESC")
+    Page<Post> findPopularPosts(Pageable pageable);
+}
